@@ -107,6 +107,7 @@ def grad_check_sparse(f, x, analytic_grad, num_checks=10, h=1e-5):
     sample a few random elements and only return numerical
     in this dimensions.
     """
+    print x.shape
 
     for i in xrange(num_checks):
         ix = tuple([randrange(m) for m in x.shape])
