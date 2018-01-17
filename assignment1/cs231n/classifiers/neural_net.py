@@ -49,7 +49,7 @@ class TwoLayerNet(object):
         softmax_output = np.exp(shift_scores) / np.sum(np.exp(shift_scores), axis=1).reshape(-1, 1)
         loss = -np.sum(np.log(softmax_output[range(N), list(y)]))
         loss /= N
-        loss += 0.5 * reg * (np.sum(W1 * W1), np.sum(W2 * W2))
+        loss += 0.5 * reg * (np.sum(W1 * W1) + np.sum(W2 * W2))
 
         '''backpropagation'''
         grads = {}
