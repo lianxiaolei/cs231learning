@@ -140,8 +140,6 @@ class TwoLayerNet(object):
             'val_acc_history': val_acc_history,
         }
 
-
-
     def predict(self, X):
         """
         Use the trained weights of this two-layer network to predict labels for
