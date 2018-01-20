@@ -64,7 +64,8 @@ def hog_feature(im):
 
     gx[:, :-1] = np.diff(image, n=1, axis=1)
     gy[:-1, :] = np.diff(image, n=1, axis=0)
-    grad
+    grad_mag = np.sqrt(gx ** 2 + gy ** 2)
+    grad_ori = np.arctan2(gy, gx + 1e-14)
 
 
 def color_histogram_hsv(im, nbin=10, xmin=0, xmax=255, normalized=True):
