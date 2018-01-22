@@ -1,3 +1,6 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 import numpy as np
 
 
@@ -27,10 +30,8 @@ def affine_forward(x, w, b):
     N = x.shape[0]
     x_rsp = x.reshape(N, -1)
     out = x_rsp.dot(w) + b
-    # pass
-    #############################################################################
-    #                             END OF YOUR CODE                              #
-    #############################################################################
+    cache = (x, w, b)
+    return out, cache
 
 
 def affine_backward(dout, cache):
@@ -53,11 +54,13 @@ def affine_backward(dout, cache):
     #############################################################################
     # TODO: Implement the affine backward pass.                                 #
     #############################################################################
+    N = x.shape[0]
+    x_rsp = x.reshape(N, -1)
+    dx = dout.dot(w.T)
+    dx = dx.reshape(*x.shape)
+    dw = x_rsp.T.dot(dout)
+    db = np.sum(dout, axis=0)  # 每个W向量配有1个bias
 
-    # pass
-    #############################################################################
-    #                             END OF YOUR CODE                              #
-    #############################################################################
     return dx, dw, db
 
 
@@ -76,11 +79,7 @@ def relu_forward(x):
     #############################################################################
     # TODO: Implement the ReLU forward pass.                                    #
     #############################################################################
-
-    # pass
-    #############################################################################
-    #                             END OF YOUR CODE                              #
-    #############################################################################
+    out = x * (x >= 0)
     cache = x
     return out, cache
 
@@ -100,11 +99,7 @@ def relu_backward(dout, cache):
     #############################################################################
     # TODO: Implement the ReLU backward pass.                                   #
     #############################################################################
-
-    # pass
-    #############################################################################
-    #                             END OF YOUR CODE                              #
-    #############################################################################
+    dx = dout * (x >= 0)
     return dx
 
 
@@ -321,14 +316,14 @@ def dropout_backward(dout, cache):
 
     dx = None
     if mode == 'train':
-        ###########################################################################
-        # TODO: Implement the training phase backward pass for inverted dropout.  #
-        ###########################################################################
+    ###########################################################################
+    # TODO: Implement the training phase backward pass for inverted dropout.  #
+    ###########################################################################
 
-        # pass
-        ###########################################################################
-        #                            END OF YOUR CODE                             #
-        ###########################################################################
+    # pass
+    ###########################################################################
+    #                            END OF YOUR CODE                             #
+    ###########################################################################
     elif mode == 'test':
         dx = dout
     return dx
@@ -438,7 +433,7 @@ def max_pool_backward_naive(dout, cache):
     #############################################################################
     # TODO: Implement the max pooling backward pass                             #
     #############################################################################
-                                                                           :, :, None, None]
+    :,:, None, None]
     # pass
     #############################################################################
     #                             END OF YOUR CODE                              #
@@ -529,7 +524,16 @@ def svm_loss(x, y):
     - loss: Scalar giving the loss
     - dx: Gradient of the loss with respect to x
     """
-
+    N = x.shape[0]
+    correct_class_scores = x[np.arange(N), y]
+    margins = np.maximum(0, x - correct_class_scores[:, np.newaxis] + 1.0)
+    margins[np.arange(N), y] = 0
+    loss = np.sum(margins) / N
+    num_pos = np.sum(margins > 0, axis=1)
+    dx = np.zeros_like(x)
+    dx[margins > 0] = 1
+    dx[np.arange(N), y] -= num_pos
+    dx /= N
     return loss, dx
 
 
@@ -547,5 +551,11 @@ def softmax_loss(x, y):
     - loss: Scalar giving the loss
     - dx: Gradient of the loss with respect to x
     """
-
+    probs = np.exp(x - np.max(x, axis=1, keepdims=True))  # 里层是将数据0中心化
+    probs /= np.sum(probs, axis=1, keepdims=True)
+    N = x.shape[0]
+    loss = -np.sum(np.log(probs[np.arange(N), y])) / N
+    dx = probs.copy()  # dx为对scores求导
+    dx[np.arange(N), y] -= 1
+    dx /= N
     return loss, dx
