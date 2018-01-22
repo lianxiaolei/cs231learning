@@ -27,7 +27,6 @@ class TwoLayerNet(object):
                  weight_scale=1e-3, reg=0.0):
         """
         Initialize a new network.
-
         Inputs:
         - input_dim: An integer giving the size of the input
         - hidden_dim: An integer giving the size of the hidden layer
@@ -97,13 +96,13 @@ class TwoLayerNet(object):
         ############################################################################
         loss, dscores = softmax_loss(scores, y)
         loss = loss + 0.5 * self.reg * np.sum(self.params['W1'] ** 2) + \
-               0.5 * self.reg * np.sum(self.params['W1'] ** 2)
+               0.5 * self.reg * np.sum(self.params['W2'] ** 2)
 
         dx2, dw2, db2 = affine_backward(dscores, a2_cache)
         grads['W2'] = dw2 + self.reg * self.params['W2']
         grads['b2'] = db2
 
-        dx1, dw1, db1 = affine_relu_backward(dscores, ar1_cache)
+        dx1, dw1, db1 = affine_relu_backward(dx2, ar1_cache)
         grads['W1'] = dw1 + self.reg * self.params['W1']
         grads['b1'] = db1
 

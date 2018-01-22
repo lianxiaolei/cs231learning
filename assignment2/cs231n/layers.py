@@ -99,7 +99,7 @@ def relu_backward(dout, cache):
     #############################################################################
     # TODO: Implement the ReLU backward pass.                                   #
     #############################################################################
-    dx = dout * (x >= 0)
+    dx = (x >= 0) * dout
     return dx
 
 
@@ -151,24 +151,24 @@ def batchnorm_forward(x, gamma, beta, bn_param):
 
     out, cache = None, None
     if mode == 'train':
-    #############################################################################
-    # TODO: Implement the training-time forward pass for batch normalization.   #
-    # Use minibatch statistics to compute the mean and variance, use these      #
-    # statistics to normalize the incoming data, and scale and shift the        #
-    # normalized data using gamma and beta.                                     #
-    #                                                                           #
-    # You should store the output in the variable out. Any intermediates that   #
-    # you need for the backward pass should be stored in the cache variable.    #
-    #                                                                           #
-    # You should also use your computed sample mean and variance together with  #
-    # the momentum variable to update the running mean and running variance,    #
-    # storing your result in the running_mean and running_var variables.        #
-    #############################################################################
+        #############################################################################
+        # TODO: Implement the training-time forward pass for batch normalization.   #
+        # Use minibatch statistics to compute the mean and variance, use these      #
+        # statistics to normalize the incoming data, and scale and shift the        #
+        # normalized data using gamma and beta.                                     #
+        #                                                                           #
+        # You should store the output in the variable out. Any intermediates that   #
+        # you need for the backward pass should be stored in the cache variable.    #
+        #                                                                           #
+        # You should also use your computed sample mean and variance together with  #
+        # the momentum variable to update the running mean and running variance,    #
+        # storing your result in the running_mean and running_var variables.        #
+        #############################################################################
 
-    # pass
-    #############################################################################
-    #                             END OF YOUR CODE                              #
-    #############################################################################
+        pass
+        #############################################################################
+        #                             END OF YOUR CODE                              #
+        #############################################################################
     elif mode == 'test':
         #############################################################################
         # TODO: Implement the test-time forward pass for batch normalization. Use   #
@@ -279,17 +279,18 @@ def dropout_forward(x, dropout_param):
 
     mask = None
     out = None
+    cache = None
 
     if mode == 'train':
-    ###########################################################################
-    # TODO: Implement the training phase forward pass for inverted dropout.   #
-    # Store the dropout mask in the mask variable.                            #
-    ###########################################################################
+        ###########################################################################
+        # TODO: Implement the training phase forward pass for inverted dropout.   #
+        # Store the dropout mask in the mask variable.                            #
+        ###########################################################################
 
-    # pass
-    ###########################################################################
-    #                            END OF YOUR CODE                             #
-    ###########################################################################
+        pass
+        ###########################################################################
+        #                            END OF YOUR CODE                             #
+        ###########################################################################
     elif mode == 'test':
         ###########################################################################
         # TODO: Implement the test phase forward pass for inverted dropout.       #
@@ -316,14 +317,14 @@ def dropout_backward(dout, cache):
 
     dx = None
     if mode == 'train':
-    ###########################################################################
-    # TODO: Implement the training phase backward pass for inverted dropout.  #
-    ###########################################################################
+        ###########################################################################
+        # TODO: Implement the training phase backward pass for inverted dropout.  #
+        ###########################################################################
 
-    # pass
-    ###########################################################################
-    #                            END OF YOUR CODE                             #
-    ###########################################################################
+        pass
+        ###########################################################################
+        #                            END OF YOUR CODE                             #
+        ###########################################################################
     elif mode == 'test':
         dx = dout
     return dx
@@ -433,7 +434,7 @@ def max_pool_backward_naive(dout, cache):
     #############################################################################
     # TODO: Implement the max pooling backward pass                             #
     #############################################################################
-    :,:, None, None]
+
     # pass
     #############################################################################
     #                             END OF YOUR CODE                              #
