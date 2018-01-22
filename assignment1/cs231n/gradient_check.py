@@ -1,3 +1,6 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 import numpy as np
 from random import randrange
 
@@ -50,7 +53,7 @@ def eval_numerical_gradient_array(f, x, df, h=1e-5):
         neg = f(x).copy()
         x[ix] = oldval
 
-        grad[ix] = np.sum((pos - neg) * df) / (2 * h)
+        grad[ix] = np.sum((pos - neg) * df) / (2 * h)  # *df是什么意思
         it.iternext()
     return grad
 
