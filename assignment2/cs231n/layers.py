@@ -170,7 +170,9 @@ def batchnorm_forward(x, gamma, beta, bn_param):
         x_hat = (x - sample_mean) / (np.sqrt(sample_var + eps))
         out = gamma * x_hat + beta
         cache = (gamma, x, sample_mean, sample_var, eps, x_hat)
-        running_mean =
+        # 万脸蒙逼
+        running_mean = momentum * running_mean + (1 - momentum) * sample_mean
+        running_var = momentum * running_var + (1 - momentum) * sample_var
 
     elif mode == 'test':
         #############################################################################
@@ -179,12 +181,9 @@ def batchnorm_forward(x, gamma, beta, bn_param):
         # and shift the normalized data using gamma and beta. Store the result in   #
         # the out variable.                                                         #
         #############################################################################
+        # 万脸蒙逼
         scale = gamma / (np.sqrt(running_var + eps))
         out = x * scale + (beta - running_mean * scale)
-        # pass
-        #############################################################################
-        #                             END OF YOUR CODE                              #
-        #############################################################################
     else:
         raise ValueError('Invalid forward batchnorm mode "%s"' % mode)
 
