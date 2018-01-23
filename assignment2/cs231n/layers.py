@@ -170,7 +170,7 @@ def batchnorm_forward(x, gamma, beta, bn_param):
         x_hat = (x - sample_mean) / (np.sqrt(sample_var + eps))
         out = gamma * x_hat + beta
         cache = (gamma, x, sample_mean, sample_var, eps, x_hat)
-        running_mean = 
+        running_mean =
 
     elif mode == 'test':
         #############################################################################
