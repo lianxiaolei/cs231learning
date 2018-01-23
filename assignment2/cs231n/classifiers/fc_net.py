@@ -70,6 +70,7 @@ class TwoLayerNet(object):
         - loss: Scalar value giving the loss
         - grads: Dictionary with the same keys as self.params, mapping parameter
           names to gradients of the loss with respect to those parameters.
+        如果y为空,则返回的是得分而非真正损失值
         """
         scores = None
         ############################################################################
@@ -95,8 +96,10 @@ class TwoLayerNet(object):
         # of 0.5 to simplify the expression for the gradient.                      #
         ############################################################################
         loss, dscores = softmax_loss(scores, y)
-        loss = loss + 0.5 * self.reg * np.sum(self.params['W1'] ** 2) + \
-               0.5 * self.reg * np.sum(self.params['W2'] ** 2)
+        loss = loss + 0.5 * self.reg * np.sum(self.params['W1'] * self.params['W1']) + \
+               0.5 * self.reg * np.sum(self.params['W2'] * self.params['W2'])
+        # loss = loss + 0.5 * self.reg * np.sum(self.params['W1'] ** 2) + \
+        #        0.5 * self.reg * np.sum(self.params['W2'] ** 2)
 
         dx2, dw2, db2 = affine_backward(dscores, a2_cache)
         grads['W2'] = dw2 + self.reg * self.params['W2']
@@ -167,11 +170,12 @@ class FullyConnectedNet(object):
         # beta2, etc. Scale parameters should be initialized to one and shift      #
         # parameters should be initialized to zero.                                #
         ############################################################################
-        # pass
-        ############################################################################
-        #                             END OF YOUR CODE                             #
-        ############################################################################
-
+        layer_input_dim = input_dim
+        for i, hd in enumerate(hidden_dims):
+            self.params['W%d' % (i + 1)] = weight_scale * np.random.randn(layer_input_dim, hd)
+            self.params['b%d' % (i + 1)] = weight_scale * np.zeros(hd)
+            if self.use_batchnorm:
+                
         # When using dropout we need to pass a dropout_param dictionary to each
         # dropout layer so that the layer knows the dropout probability and the mode
         # (train / test). You can pass the same dropout_param to each dropout layer.

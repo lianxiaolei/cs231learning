@@ -531,7 +531,7 @@ def svm_loss(x, y):
     margins[np.arange(N), y] = 0
     loss = np.sum(margins) / N
     num_pos = np.sum(margins > 0, axis=1)
-    dx = np.zeros_like(x)
+    dx = np.zeros_like(x)  # dx为对scores求导
     dx[margins > 0] = 1
     dx[np.arange(N), y] -= num_pos
     dx /= N

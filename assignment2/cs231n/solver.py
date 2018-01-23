@@ -1,3 +1,6 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 import numpy as np
 
 from cs231n import optim
@@ -99,6 +102,7 @@ class Solver(object):
           iterations.
         - verbose: Boolean; if set to false then no output will be printed during
           training.
+        在check_accuracy里进行模型训练检查精度,从而可以确定最优参数
         """
         self.model = model
         self.X_train = data['X_train']
@@ -113,6 +117,7 @@ class Solver(object):
         self.batch_size = kwargs.pop('batch_size', 100)
         self.num_epochs = kwargs.pop('num_epochs', 10)
 
+        # 日志输出参数
         self.print_every = kwargs.pop('print_every', 10)
         self.verbose = kwargs.pop('verbose', True)
 
