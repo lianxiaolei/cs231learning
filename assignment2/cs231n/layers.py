@@ -165,10 +165,13 @@ def batchnorm_forward(x, gamma, beta, bn_param):
         # storing your result in the running_mean and running_var variables.        #
         #############################################################################
 
-        pass
-        #############################################################################
-        #                             END OF YOUR CODE                              #
-        #############################################################################
+        sample_mean = np.mean(x, axis=0)
+        sample_var = np.var(x, axis=0)
+        x_hat = (x - sample_mean) / (np.sqrt(sample_var + eps))
+        out = gamma * x_hat + beta
+        cache = (gamma, x, sample_mean, sample_var, eps, x_hat)
+        running_mean = 
+
     elif mode == 'test':
         #############################################################################
         # TODO: Implement the test-time forward pass for batch normalization. Use   #

@@ -175,16 +175,31 @@ class FullyConnectedNet(object):
             self.params['W%d' % (i + 1)] = weight_scale * np.random.randn(layer_input_dim, hd)
             self.params['b%d' % (i + 1)] = weight_scale * np.zeros(hd)
             if self.use_batchnorm:
-                
+                self.params['gamma%d' % (i + 1)] = np.ones(hd)
+                self.params['beta%d' % (i + 1)] = np.zeros(hd)
+            layer_input_dim = hd
+        self.params['W%d' % (self.num_layers)] = weight_scale * np.random.randn(layer_input_dim, num_classes)
+        self.params['b%d' % (self.num_layers)] = weight_scale * np.zeros(num_classes)
         # When using dropout we need to pass a dropout_param dictionary to each
         # dropout layer so that the layer knows the dropout probability and the mode
         # (train / test). You can pass the same dropout_param to each dropout layer.
+        self.dropout_param = {}
+        if self.use_dropout:
+            self.dropout_param = {'mode': 'train', 'p': dropout}
+            if seed is not None:
+                self.dropout_param['seed'] = seed
 
         # With batch normalization we need to keep track of running means and
         # variances, so we need to pass a special bn_param object to each batch
         # normalization layer. You should pass self.bn_params[0] to the forward pass
         # of the first batch normalization layer, self.bn_params[1] to the forward
         # pass of the second batch normalization layer, etc.
+        self.bn_params = []
+        if self.use_batchnorm:
+            # 每层之间都有batch normalization
+            self.bn_params = [{'mode': 'train'} for i in xrange(self.num_layers - 1)]
+        for k, v in self.params.iteritems():
+            self.params[k] = v.astype(dtype)  # 百脸蒙逼,这是干啥使的
 
     def loss(self, X, y=None):
         """
@@ -192,6 +207,15 @@ class FullyConnectedNet(object):
 
         Input / output: Same as TwoLayerNet above.
         """
+        X = X.astype(self.dtype)
+        mode = 'test' if y is None else 'train'
+
+        # Set train/test mode for batchnorm params and dropout param since they
+        # behave differently during training and testing.
+        if self.dropout_param is not None:
+            self.dropout_param['mode'] = mode
+        if self.use_batchnorm is not None:
+            self.use_batchnorm['mode'] = mode
 
         ############################################################################
         # TODO: Implement the forward pass for the fully-connected net, computing  #
@@ -205,6 +229,15 @@ class FullyConnectedNet(object):
         # self.bn_params[1] to the forward pass for the second batch normalization #
         # layer, etc.                                                              #
         ############################################################################
+        scores = None
+        ar_cache = {}  # 仿射热撸
+        dp_cache = {}  # dropout forward
+
+        for lay in xrange(self.num_layers - 1):
+            if self.use_batchnorm:
+                pass
+            else:
+                pass
 
         # pass
         ############################################################################
