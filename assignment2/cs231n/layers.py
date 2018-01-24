@@ -28,7 +28,7 @@ def affine_forward(x, w, b):
     # will need to reshape the input into rows.                                 #
     #############################################################################
     N = x.shape[0]
-    x_rsp = x.reshape(N, -1)
+    x_rsp = x.reshape(N, -1)  # 上层的误差传过来是一个3维矩阵,这里把它变成2维
     out = x_rsp.dot(w) + b
     cache = (x, w, b)
     return out, cache
@@ -551,7 +551,7 @@ def softmax_loss(x, y):
     probs /= np.sum(probs, axis=1, keepdims=True)
     N = x.shape[0]
     loss = -np.sum(np.log(probs[np.arange(N), y])) / N
-    dx = probs.copy()  # dx为对scores求导
+    dx = probs.copy()  # dx为probs对scores求导
     dx[np.arange(N), y] -= 1
     dx /= N
     return loss, dx
