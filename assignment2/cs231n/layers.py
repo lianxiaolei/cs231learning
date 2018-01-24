@@ -551,7 +551,7 @@ def softmax_loss(x, y):
     probs /= np.sum(probs, axis=1, keepdims=True)
     N = x.shape[0]
     loss = -np.sum(np.log(probs[np.arange(N), y])) / N
-    dx = probs.copy()  # dx为probs对scores求导
+    dx = probs.copy()  # dx为loss对scores求导,loss为标量,对矩阵x求导,抽机吊
     dx[np.arange(N), y] -= 1
     dx /= N
     return loss, dx
