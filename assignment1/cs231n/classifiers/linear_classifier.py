@@ -68,10 +68,7 @@ class LinearClassifier(object):
         ###########################################################################
         scores = X.dot(self.W)
         y_pred = np.argmax(scores, axis=1)
-        # pass
-        ###########################################################################
-        #                           END OF YOUR CODE                              #
-        ###########################################################################
+
         return y_pred
 
     def loss(self, X_batch, y_batch, reg):
