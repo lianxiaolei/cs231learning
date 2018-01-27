@@ -136,7 +136,6 @@ def adam(x, dx, config=None):
     config.setdefault('v', np.zeros_like(x))
     config.setdefault('t', 0)
 
-    next_x = None
     #############################################################################
     # TODO: Implement the Adam update formula, storing the next value of x in   #
     # the next_x variable. Don't forget to update the m, v, and t variables     #
