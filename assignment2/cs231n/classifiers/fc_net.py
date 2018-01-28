@@ -320,5 +320,3 @@ class FullyConnectedNet(object):
             dhout = dx
 
         return loss, grads
-
-
