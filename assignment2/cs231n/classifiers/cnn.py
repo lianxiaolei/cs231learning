@@ -1,5 +1,7 @@
-import numpy as np
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 
+import numpy as np
 from cs231n.layers import *
 from cs231n.fast_layers import *
 from cs231n.layer_utils import *
@@ -47,6 +49,13 @@ class ThreeLayerConvNet(object):
         # hidden affine layer, and keys 'W3' and 'b3' for the weights and biases   #
         # of the output affine layer.                                              #
         ############################################################################
+        C, H, W = input_dim
+        self.params['W1'] = weight_scale * np.random.randn(num_filters, C, filter_size, filter_size)
+        self.params['b1'] = np.zeros(num_filters)
+        self.params['W2'] = weight_scale * np.random.randn((H / 2) * (W / 2) * num_filters, hidden_dim)
+        self.params['b2'] = np.zeros(hidden_dim)
+        self.params['W3'] = weight_scale * np.random.randn(hidden_dim, num_classes)
+        self.params['b3'] = np.zeros(num_classes)
 
     def loss(self, X, y=None):
         """
@@ -54,18 +63,54 @@ class ThreeLayerConvNet(object):
 
         Input / output: Same API as TwoLayerNet in fc_net.py.
         """
-        # pass
-        ############################################################################
-        #                             END OF YOUR CODE                             #
-        ############################################################################
+        W1, b1 = self.params['W1'], self.params['b1']
+        W2, b2 = self.params['W2'], self.params['b2']
+        W3, b3 = self.params['W3'], self.params['b3']
 
+        filter_size = W1.shape[2]
+        # 设置步长和填充,当步长为1时,填充p=(flt_size - 1) / 2保证输入和输出有相同的尺寸
+        conv_param = {'stride': 1, 'pad': (filter_size - 1) / 2}
+
+        # 设置池化层参数
+        pool_param = {'pool_height': 2, 'pool_width': 2, 'stride': 2}
+
+        conv_forward_out_1, cache_forward_1 = \
+            conv_relu_pool_forward(
+                X, self.params['W1'], self.params['b1'], conv_param, pool_param)
+
+        affine_forward_out_2, cache_forward_2 = \
+            affine_forward(
+                conv_forward_out_1, self.params['W2'], self.params['b2'])
+
+        affine_relu_2, cache_relu_2 = relu_forward(affine_forward_out_2)
+
+        scores, cache_forward_3 = \
+            affine_forward(affine_relu_2, self.params['W3'], self.params['b3'])
+
+        if y is None:
+            return scores
+
+        loss, grads = 0, {}
         ############################################################################
         # TODO: Implement the backward pass for the three-layer convolutional net, #
         # storing the loss and gradients in the loss and grads variables. Compute  #
         # data loss using softmax, and make sure that grads[k] holds the gradients #
         # for self.params[k]. Don't forget to add L2 regularization!               #
         ############################################################################
-        # pass
-        ############################################################################
-        #                             END OF YOUR CODE                             #
-        ############################################################################
+        loss, dout = softmax_loss(scores, y)
+        # 正则化
+        loss += self.reg * 0.5 * (
+                np.sum(self.params['W1'] ** 2) +
+                np.sum(self.params['W2'] ** 2) +
+                np.sum(self.params['W3'] ** 2))
+
+        dX3, grads['W3'], grads['b3'] = affine_backward(dout, cache_forward_3)
+        dX2 = relu_backward(dX3, cache_relu_2)
+        dX2, grads['W2'], grads['b2'] = affine_backward(dX2, cache_forward_2)
+        dX1, grads['W1'], grads['b1'] = conv_relu_pool_backward(dX2, cache_forward_1)
+
+        grads['W3'] = grads['W3'] + self.reg * self.params['W3']
+        grads['W2'] = grads['W2'] + self.reg * self.params['W2']
+        grads['W1'] = grads['W1'] + self.reg * self.params['W1']
+
+        return loss, grads
