@@ -137,11 +137,11 @@ def rnn_backward(dh, cache):
     dWx = np.zeros((D, H))
     dWh = np.zeros((H, H))
     db = np.zeros(H)
-    dprev_h = np.zeros([N, H])
+    dprev_h_ = np.zeros([N, H])
     for i in xrange(T - 1, -1, -1):
         # 这层对下层误差+这层对前层误差=这层总误差
         dx_, dprev_h_, dWx_, dWh_, db_ = \
-            rnn_step_backward(dh[:, i, :] + dprev_h, cache.pop())
+            rnn_step_backward(dh[:, i, :] + dprev_h_, cache.pop())
         dx[:, i, :] = dx_
         dh0 = dprev_h_
         dWx += dWx_
