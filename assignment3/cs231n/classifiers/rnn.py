@@ -136,10 +136,43 @@ class CaptioningRNN(object):
         # defined above to store loss and gradients; grads[k] should give the      #
         # gradients for self.params[k].                                            #
         ############################################################################
-        pass
-        ############################################################################
-        #                             END OF YOUR CODE                             #
-        ############################################################################
+        'forward'
+        # image vectors affine
+        imf2hid = features.dot(W_proj) + b_proj
+
+        # word embedding
+        word_vectors, word_cache = word_embedding_forward(captions_in, W_embed)
+
+        # select a net from (rnn, lstm)
+        if self.cell_type == 'rnn':
+            hidden, rnn_cache = rnn_forward(word_vectors, imf2hid, Wx, Wh, b)
+        else:
+            pass
+
+        # calculate the scores of the last layer with W_vocab, b_vocab
+        scores, h2v_cache = temporal_affine_forward(hidden, W_vocab, b_vocab)
+
+        # calculate the prob of the scores and get the loss and dscores
+        loss, dscores = temporal_softmax_loss(scores, captions_out, mask)
+
+        'backward'
+        # gradient of the last hidden(back from loss to the last hidden input)
+        # gradient of W_vocab and b_vocab
+        # W_vocab, b_vocab is under the scores, W_embed is on the words input.
+        dhidden, grads['W_vocab'], grads['b_vocab'] = \
+            temporal_affine_backward(dscores, h2v_cache)
+
+        if self.cell_type == 'rnn':
+            dword_vectors, dimf2hid, grads['Wx'], grads['Wh'], grads['b'] = \
+                rnn_backward(dhidden, rnn_cache)
+        else:
+            pass
+
+        # gradient of W_embed, no bias
+        grads['W_embed'] = word_embedding_backward(dword_vectors, word_cache)
+        # gradient of image project weight and bias: W_proj and b_proj
+        grads['W_proj'] = features.T.dot(dimf2hid)
+        grads['b_proj'] = np.sum(dimf2hid, axis=0)
 
         return loss, grads
 
@@ -173,6 +206,7 @@ class CaptioningRNN(object):
         # Unpack parameters
         W_proj, b_proj = self.params['W_proj'], self.params['b_proj']
         W_embed = self.params['W_embed']
+        V, W = W_embed.shape
         Wx, Wh, b = self.params['Wx'], self.params['Wh'], self.params['b']
         W_vocab, b_vocab = self.params['W_vocab'], self.params['b_vocab']
 
@@ -197,8 +231,21 @@ class CaptioningRNN(object):
         # functions; you'll need to call rnn_step_forward or lstm_step_forward in #
         # a loop.                                                                 #
         ###########################################################################
-        pass
-        ############################################################################
-        #                             END OF YOUR CODE                             #
-        ############################################################################
+        h = features.dot(W_proj)
+        # [N, H] num input X project dim(not T)
+        # the h is a input of the rnn first time sequence
+        c = np.zeros_like(h)
+        init_word = np.repeat(self._start, N)  # start sign
+        captions[:, 0] = init_word
+
+        for i in xrange(1, max_length):
+            onehots = np.eye(V)[captions[:, i - 1]]  # 还TM有这操作？
+            word_vectors = onehots.dot(W_embed)
+            if self.cell_type == 'rnn':
+                h, cache = rnn_step_forward(word_vectors, h, Wx, Wh, b)
+            else:
+                pass
+            scores = h.dot(W_vocab) + b_vocab
+            captions[:, i] = np.argmax(scores, axis=1)
+
         return captions
