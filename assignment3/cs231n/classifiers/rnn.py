@@ -147,7 +147,7 @@ class CaptioningRNN(object):
         if self.cell_type == 'rnn':
             hidden, rnn_cache = rnn_forward(word_vectors, imf2hid, Wx, Wh, b)
         else:
-            pass
+            hidden, lstm_cache = lstm_forward(word_vectors, imf2hid, Wx, Wh, b)
 
         # calculate the scores of the last layer with W_vocab, b_vocab
         scores, h2v_cache = temporal_affine_forward(hidden, W_vocab, b_vocab)
@@ -166,7 +166,8 @@ class CaptioningRNN(object):
             dword_vectors, dimf2hid, grads['Wx'], grads['Wh'], grads['b'] = \
                 rnn_backward(dhidden, rnn_cache)
         else:
-            pass
+            dword_vectors, dimf2hid, grads['Wx'], grads['Wh'], grads['b'] = \
+                lstm_backward(dhidden, lstm_cache)
 
         # gradient of W_embed, no bias
         grads['W_embed'] = word_embedding_backward(dword_vectors, word_cache)
