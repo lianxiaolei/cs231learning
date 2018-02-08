@@ -1,3 +1,6 @@
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+
 import matplotlib
 import numpy as np
 from scipy.ndimage import uniform_filter
@@ -25,31 +28,33 @@ def extract_features(imgs, feature_fns, verbose=False):
     if num_images == 0:
         return np.array([])
 
+    # 使用第一张图片做一个验证
     # Use the first image to determine feature dimensions
     feature_dims = []
     first_image_features = []
     for feature_fn in feature_fns:
         feats = feature_fn(imgs[0].squeeze())
+        print feats.shape
         assert len(feats.shape) == 1, 'Feature functions must be one-dimensional'
         feature_dims.append(feats.size)
         first_image_features.append(feats)
-
     # Now that we know the dimensions of the features, we can allocate a single
     # big array to store all features as columns.
     total_feature_dim = sum(feature_dims)
-    imgs_features = np.zeros((num_images, total_feature_dim))
-    imgs_features[0] = np.hstack(first_image_features).T
+    imgs_features = np.zeros((num_images, total_feature_dim))  # 方向梯度长度+hsv长度=特征向量长度
+    imgs_features[0] = np.hstack(first_image_features).T  # (dim0,) 接 (dim1,)，再转置得(1, dim0 + dim1)
 
+    # 遍历图片求特征向量
     # Extract features for the rest of the images.
-    for i in xrange(1, num_images):
+    for i in xrange(0, num_images):
         idx = 0
         for feature_fn, feature_dim in zip(feature_fns, feature_dims):
             next_idx = idx + feature_dim
+            # change the shape from (x,y) to (x*y,)
             imgs_features[i, idx:next_idx] = feature_fn(imgs[i].squeeze())
             idx = next_idx
-        if verbose and i % 1000 == 0:
+        if verbose and i % 10000 == 0:
             print 'Done extracting features for %d / %d images' % (i, num_images)
-
     return imgs_features
 
 
@@ -83,7 +88,6 @@ def hog_feature(im):
         feat: Histogram of Gradient (HOG) feature
 
     """
-
     # convert rgb to grayscale if needed
     if im.ndim == 3:
         image = rgb2gray(im)
@@ -93,7 +97,6 @@ def hog_feature(im):
     sx, sy = image.shape  # image size
     orientations = 9  # number of gradient bins
     cx, cy = (8, 8)  # pixels per cell
-
     gx = np.zeros(image.shape)
     gy = np.zeros(image.shape)
 
@@ -109,6 +112,7 @@ def hog_feature(im):
     for i in range(orientations):
         # create new integral image for this orientation
         # isolate orientations in this range
+
         temp_ori = np.where(grad_ori < 180 / orientations * (i + 1),
                             grad_ori, 0)
         temp_ori = np.where(grad_ori >= 180 / orientations * i,
@@ -116,8 +120,9 @@ def hog_feature(im):
         # select magnitudes for those orientations
         cond2 = temp_ori > 0
         temp_mag = np.where(cond2, grad_mag, 0)
-        orientation_histogram[:, :, i] = uniform_filter(temp_mag, size=(cx, cy))[cx / 2::cx, cy / 2::cy].T
-
+        # uniform_filter:模糊化
+        orientation_histogram[:, :, i] = \
+            uniform_filter(temp_mag, size=(cx, cy))[cx / 2::cx, cy / 2::cy]
     return orientation_histogram.ravel()
 
 
